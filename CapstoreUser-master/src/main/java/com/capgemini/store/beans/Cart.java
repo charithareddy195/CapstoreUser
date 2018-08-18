@@ -9,9 +9,13 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+@JsonIgnoreProperties({"hibernateLazyInitializer","handler"})
 @Entity
 public class Cart {
 	@Id
@@ -20,10 +24,11 @@ public class Cart {
 	@OneToOne(cascade=CascadeType.ALL)
 	@JoinColumn(name="phoneNumber")
 	private Customer customer;//one to one
-	@OneToMany(mappedBy="cart",cascade=CascadeType.ALL)
-	private List<Product> products = new ArrayList<Product>();// one to many
-	private int quantityRequired;//max 5
-	private double totalAmount;
+	@ManyToMany(cascade = CascadeType.ALL)
+	@JoinTable(name = "cart_products", joinColumns = { @JoinColumn(name = "cartId") }, inverseJoinColumns = { @JoinColumn(name = "productId") })
+	private List<Product> products = new ArrayList<Product>();// many to many
+	/*private int quantityRequired;//max 5
+*/	private double totalAmount;
 	@OneToOne(cascade=CascadeType.ALL)
 	@JoinColumn(name="couponId")
 	private Coupon coupon;// one to one
@@ -48,18 +53,25 @@ public class Cart {
 	public void setCoupon(Coupon coupon) {
 		this.coupon = coupon;
 	}
-	public int getQuantityRequired() {
+	/*public int getQuantityRequired() {
 		return quantityRequired;
 	}
 	public void setQuantityRequired(int quantityRequired) {
 		this.quantityRequired = quantityRequired;
-	}
+	}*/
 	public double getTotalAmount() {
 		return totalAmount;
 	}
 	public void setTotalAmount(double totalAmount) {
 		this.totalAmount = totalAmount;
 	}
+	@Override
+	public String toString() {
+		return "Cart [cartId=" + cartId + ", customer=" + customer + ", products=" + products + ", totalAmount="
+				+ totalAmount + ", coupon=" + coupon + "]";
+	}
+
 	
 	
 }
+
