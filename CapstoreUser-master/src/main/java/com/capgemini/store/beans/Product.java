@@ -1,3 +1,5 @@
+
+
 package com.capgemini.store.beans;
 
 import java.util.ArrayList;
@@ -6,6 +8,7 @@ import java.util.List;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -14,6 +17,9 @@ import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+@JsonIgnoreProperties({"hibernateLazyInitializer","handler"})
 @Entity
 public class Product {
 	@Id
@@ -55,11 +61,13 @@ public class Product {
 	@ManyToOne
 	@JoinColumn(name="inventoryId")
 	private Inventory inventory;
-	@ManyToOne
-	@JoinColumn(name="cartId")
-	private Cart cart;
+	@ManyToMany(fetch=FetchType.LAZY,mappedBy="products")
+	private List<Cart> carts = new ArrayList<Cart>();
 	private int cartQuantity;
 	
+	public Product() {
+		super();
+	}
 	public int getCartQuantity() {
 		return cartQuantity;
 	}
@@ -198,11 +206,12 @@ public class Product {
 	public void setProductRemovedDate(Date productRemovedDate) {
 		this.productRemovedDate = productRemovedDate;
 	}
-	public Cart getCart() {
-		return cart;
+	
+	public List<Cart> getCarts() {
+		return carts;
 	}
-	public void setCart(Cart cart) {
-		this.cart = cart;
+	public void setCarts(List<Cart> carts) {
+		this.carts = carts;
 	}
 	public Product(int productId,String productName, double productPrice, int productQuantityAvailable,
 			 String brand) {
@@ -212,6 +221,26 @@ public class Product {
 		this.productPrice = productPrice;
 		this.productQuantityAvailable = productQuantityAvailable;
 		this.brand = brand;
+	}
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + productId;
+		return result;
+	}
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Product other = (Product) obj;
+		if (productId != other.productId)
+			return false;
+		return true;
 	}
 		
 }
